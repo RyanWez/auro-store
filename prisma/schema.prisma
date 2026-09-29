@@ -1,0 +1,125 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  telegramId   BigInt        @unique
+  username     String?
+  firstName    String?
+  lastName     String?
+  mmkBalance   Float         @default(0.0)
+  totalSpent   Float         @default(0.0)
+  isBanned     Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  orders       Order[]
+  slips        DepositSlip[]
+
+  @@index([telegramId])
+}
+
+model Category {
+  id           Int       @id @default(autoincrement())
+  upstreamId   Int       @unique
+  name         String
+  icon         String?
+  displayOrder Int       @default(0)
+  isVisible    Boolean   @default(true)
+  products     Product[]
+}
+
+model Product {
+  id               Int       @id @default(autoincrement())
+  upstreamId       Int       @unique
+  categoryId       Int?
+  category         Category? @relation(fields: [categoryId], references: [id])
+  name             String
+  description      String?   @db.Text
+  deliveryType     String    @default("TEXT")
+  upstreamPriceUsd Float
+  mmkPrice         Float
+  isCustomPrice    Boolean   @default(false)
+  stock            Int       @default(0)
+  inStock          Boolean   @default(true)
+  isVisible        Boolean   @default(true)
+  updatedAt        DateTime  @updatedAt
+
+  orders           Order[]
+
+  @@index([upstreamId])
+  @@index([isVisible, inStock])
+}
+
+enum OrderStatus {
+  COMPLETED
+  PENDING
+  FAILED
+  REFUNDED
+}
+
+model Order {
+  id              Int         @id @default(autoincrement())
+  externalOrderId String      @unique
+  upstreamOrderId Int?
+  userId          Int
+  user            User        @relation(fields: [userId], references: [id])
+  productId       Int
+  product         Product     @relation(fields: [productId], references: [id])
+  productName     String
+  quantity        Int         @default(1)
+  unitMmkPrice    Float
+  totalMmkPrice   Float
+  costUsd         Float?
+  profitMmk       Float?
+  deliveryLines   String[]
+  status          OrderStatus @default(COMPLETED)
+  errorMessage    String?
+  createdAt       DateTime    @default(now())
+
+  @@index([userId])
+  @@index([externalOrderId])
+}
+
+enum SlipStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PaymentProvider {
+  KBZ_PAY
+  WAVE_PAY
+  MANUAL_BANK
+}
+
+model DepositSlip {
+  id             Int             @id @default(autoincrement())
+  userId         Int
+  user           User            @relation(fields: [userId], references: [id])
+  provider       PaymentProvider @default(KBZ_PAY)
+  amountMmk      Float
+  transactionId  String?
+  telegramFileId String
+  status         SlipStatus      @default(PENDING)
+  adminNote      String?
+  approvedAt     DateTime?
+  createdAt      DateTime        @default(now())
+
+  @@index([userId])
+  @@index([status])
+}
+
+model Setting {
+  key         String   @id
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt
+}

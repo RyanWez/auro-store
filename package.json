@@ -1,0 +1,44 @@
+{
+  "name": "aura-store",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Aura Store — Modern Myanmar Telegram Reseller Store & Admin Dashboard",
+  "scripts": {
+    "dev": "next dev",
+    "bot:dev": "tsx --env-file=.env bot/dev.ts",
+    "sync": "tsx --env-file=.env scripts/sync.ts",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:push": "prisma db push",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.19.1",
+    "grammy": "^1.30.0",
+    "lucide-react": "^0.441.0",
+    "next": "^14.2.13",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.5",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "prisma": "^5.19.1",
+    "tailwindcss": "^3.4.11",
+    "tsx": "^4.23.15",
+    "typescript": "^5.6.2",
+    "vitest": "^2.1.1"
+  },
+  "allowScripts": {
+    "@prisma/engines@5.22.0": true,
+    "esbuild@0.21.5": true,
+    "prisma@5.22.0": true
+  }
+}
